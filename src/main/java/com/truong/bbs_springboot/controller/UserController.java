@@ -7,6 +7,7 @@ import com.truong.bbs_springboot.dto.ResponseBody;
 import com.truong.bbs_springboot.service.UserService;
 import com.truong.bbs_springboot.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -26,6 +27,7 @@ public class UserController {
     @Autowired
     private UserValidator userValidator;
     @Autowired
+    @Qualifier("userService")
     private UserService userService;
 
     @PostMapping("/register")
@@ -56,9 +58,9 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
-        String token = userService.login(loginDTO);
+       JwtResponse response = userService.login(loginDTO);
 
-        return new ResponseEntity<>(new JwtResponse(token), HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
 

@@ -1,5 +1,6 @@
 package com.truong.bbs_springboot.service;
 
+import com.truong.bbs_springboot.dto.JwtResponse;
 import com.truong.bbs_springboot.dto.LoginDTO;
 import com.truong.bbs_springboot.dto.RegisterDTO;
 import com.truong.bbs_springboot.model.User;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
+@Service("userService")
 public class UserService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
@@ -38,13 +39,14 @@ public class UserService {
         user.setEmail(registerDTO.getEmail());
         user.setUsername(registerDTO.getUsername());
         user.setPassword(registerDTO.getPassword());
+        userRepository.save(user);
     }
 
     public User findUserById(Long id) {
         return userRepository.findById(id).get();
     }
 
-    public String login(LoginDTO clientLoginRequest) {
+    public JwtResponse login(LoginDTO clientLoginRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 clientLoginRequest.getEmail(), clientLoginRequest.getPassword()
         ));
@@ -52,8 +54,9 @@ public class UserService {
                 .loadUserByUsername(clientLoginRequest.getEmail());
 
         String token = jwtTokenUtil.generateToken(userDetails);
+        String username = jwtTokenUtil.getUsernameFromToken(token);
 
-        return token;
+        return new JwtResponse(token, username);
     }
 
     public User getLoggedInUser(Authentication authentication) {
